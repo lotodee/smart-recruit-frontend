@@ -131,10 +131,10 @@ export function CandidateDetails({ id }: { id: string }) {
             Back to Candidates
           </Button>
         </Link>
-        <Button variant="outline" className="gap-1" onClick={() => setStatusModalOpen(true)}>
+        {/* <Button variant="outline" className="gap-1" onClick={() => setStatusModalOpen(true)}>
           <Mail className="h-4 w-4" />
           Send Status Email
-        </Button>
+        </Button> */}
       </div>
 
       <Card className="mb-6">
@@ -194,12 +194,12 @@ export function CandidateDetails({ id }: { id: string }) {
             </div>
           )}
 
-          {candidate.failureReason && (
+          {/* {candidate.failureReason && (
             <div className="grid gap-1">
               <p className="text-sm font-medium text-gray-500">Failure Reason</p>
               <p className="p-3 bg-red-50 text-red-800 rounded-md">{candidate.failureReason}</p>
             </div>
-          )}
+          )} */}
 
           {candidate.notes && (
             <div className="grid gap-1">

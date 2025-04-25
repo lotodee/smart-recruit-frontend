@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { CandidateDetails } from "@/components/candidate-details"
 import { use } from "react"
+import Loader from "@/components/ui/loader"
 export default function CandidateDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
@@ -36,7 +37,7 @@ export default function CandidateDetailsPage({ params }: { params: Promise<{ id:
   }, [router])
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center">Loading...</div>
+    return <Loader/>
   }
 
   return (

@@ -34,6 +34,7 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
   const [step, setStep] = useState<"confirm" | "reason" | "recruiter">("confirm")
   const [reason, setReason] = useState("")
   const [recruiterName, setRecruiterName] = useState("")
+  const [recruiterEmail, setRecruiterEmail] =  useState("");
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -82,9 +83,10 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
     try {
       const response = await api.post(`/candidates/${candidate._id}/send-email`, {
         recruiterName,
+        recruiterEmail,
         reason: candidate.status === "Failed" ? reason : undefined,
       })
-
+      console.log("the response of email", response);
       if (response.data.success) {
         setSuccess(true)
         setEmailPreviewUrl(response.data.emailPreview)
@@ -96,6 +98,7 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
         throw new Error(response.data.message || "Failed to send email")
       }
     } catch (err: any) {
+      console.log(err)
       setError(err.response?.data?.message || err.message || "Failed to send email")
     } finally {
       setIsLoading(false)
@@ -110,8 +113,8 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
             <DialogHeader>
               <DialogTitle>Send Status Update Email</DialogTitle>
               <DialogDescription>
-                Would you like to send an email notification to {candidate.name} about their{" "}
-                {candidate.status.toLowerCase()} status?
+                Would you like to send an email notification to {candidate.name}{" "}
+                about their {candidate.status.toLowerCase()} status?
               </DialogDescription>
             </DialogHeader>
             {error && (
@@ -134,7 +137,8 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
             <DialogHeader>
               <DialogTitle>Provide Failure Reason</DialogTitle>
               <DialogDescription>
-                Please provide a reason why the candidate failed. This will be included in the email.
+                Please provide a reason why the candidate failed. This will be
+                included in the email.
               </DialogDescription>
             </DialogHeader>
             {error && (
@@ -169,7 +173,8 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
             <DialogHeader>
               <DialogTitle>Provide Recruiter Information</DialogTitle>
               <DialogDescription>
-                Please provide your name to be included in the email as the recruiter.
+                Please provide your name to be included in the email as the
+                recruiter.
               </DialogDescription>
             </DialogHeader>
             {error && (
@@ -200,7 +205,7 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
             )}
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="recruiterName">Your Name</Label>
+                <Label htmlFor="recruiterName">Recruiter Name</Label>
                 <Input
                   id="recruiterName"
                   placeholder="John Doe"
@@ -208,9 +213,22 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
                   onChange={(e) => setRecruiterName(e.target.value)}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="recruiterEmail">Recruiter Email</Label>
+                <Input
+                  id="recruiterEmail"
+                  placeholder="recruiter@email.com"
+                  value={recruiterEmail}
+                  onChange={(e) => setRecruiterEmail(e.target.value)}
+                />
+              </div>
             </div>
             <DialogFooter className="sm:justify-between">
-              <Button variant="outline" onClick={handleDecline} disabled={isLoading || success}>
+              <Button
+                variant="outline"
+                onClick={handleDecline}
+                disabled={isLoading || success}
+              >
                 Cancel
               </Button>
               <Button onClick={handleSendEmail} disabled={isLoading || success}>
@@ -221,5 +239,5 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

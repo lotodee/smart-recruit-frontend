@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { CandidatesTable } from "@/components/candidates-table"
+import Loader from "@/components/ui/loader"
 
 export default function CandidatesPage() {
   const router = useRouter()
@@ -35,7 +36,7 @@ export default function CandidatesPage() {
   }, [router])
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center">Loading...</div>
+    return <Loader/>
   }
 
   return (

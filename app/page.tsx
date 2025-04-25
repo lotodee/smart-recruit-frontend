@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { LoginForm } from "@/components/login-form"
+import Loader from "@/components/ui/loader"
 
 export default function Home() {
   const router = useRouter()
@@ -29,7 +30,7 @@ export default function Home() {
   }, [router])
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center">Loading...</div>
+    return <Loader/>
   }
 
   return (

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, type KeyboardEvent } from "react"
+import { useState, forwardRef, type KeyboardEvent, useImperativeHandle, useEffect } from "react";
 import { useRouter } from "next/navigation"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
@@ -43,6 +43,8 @@ const commonSkills = [
   "Kubernetes",
   "AWS",
   "Azure",
+  "Djanjo",
+  "Python",
   "Google Cloud",
   "CI/CD",
   "Jest",
@@ -55,6 +57,7 @@ const commonSkills = [
   "Gatsby",
   "Redux",
   "MobX",
+  "MERN",
   "React Query",
 ]
 
@@ -66,7 +69,7 @@ const candidateSchema = z.object({
 
 type CandidateFormValues = z.infer<typeof candidateSchema>
 
-export function NewCandidateForm() {
+export const NewCandidateForm =({onSuccessChange}:{onSuccessChange:(success:boolean)=>void}) =>{
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<boolean>(false)
@@ -86,9 +89,15 @@ export function NewCandidateForm() {
     defaultValues: {
       name: "",
       email: "",
-      test_link: "",
+      test_link: ""
+
     },
   })
+
+ 
+useEffect(() => {
+  onSuccessChange(success)
+}, [success])
 
   const handleSkillInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -134,7 +143,9 @@ export function NewCandidateForm() {
     setIsLoading(true)
     setError(null)
     setSuccess(false)
+    // if (data.skills.length < 0) {
 
+    // }
     try {
       // Insert new candidate via API with skills
       const response = await api.post("/candidates", {
@@ -145,7 +156,7 @@ export function NewCandidateForm() {
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to add candidate")
       }
-
+      
       setSuccess(true)
       reset()
       setSkills([])
@@ -188,7 +199,9 @@ export function NewCandidateForm() {
               {...register("name")}
               className={errors.name ? "border-red-500" : ""}
             />
-            {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="text-sm text-red-500">{errors.name.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -200,7 +213,9 @@ export function NewCandidateForm() {
               {...register("email")}
               className={errors.email ? "border-red-500" : ""}
             />
-            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -211,7 +226,9 @@ export function NewCandidateForm() {
               {...register("test_link")}
               className={errors.test_link ? "border-red-500" : ""}
             />
-            {errors.test_link && <p className="text-sm text-red-500">{errors.test_link.message}</p>}
+            {errors.test_link && (
+              <p className="text-sm text-red-500">{errors.test_link.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -239,10 +256,19 @@ export function NewCandidateForm() {
                   ))}
                 </div>
               )}
+              {/* {errors.test_link && (
+                <p className="text-sm mt-2 text-red-500">
+                  {errors.skills.message}
+                </p>
+              )} */}
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
               {skills.map((skill, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center gap-1 py-1">
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="flex items-center gap-1 py-1"
+                >
                   {skill}
                   <button
                     type="button"
@@ -264,5 +290,5 @@ export function NewCandidateForm() {
         </CardFooter>
       </form>
     </Card>
-  )
+  );
 }

@@ -22,7 +22,7 @@ type Candidate = {
   notes?: string
 }
 
-export function RecentCandidatesTable() {
+export function RecentCandidatesTable({formUpdateSuccess}:{formUpdateSuccess:boolean}) {
   const router = useRouter()
   const [candidates, setCandidates] = useState<Candidate[]>([])
   const [loading, setLoading] = useState(true)
@@ -58,7 +58,7 @@ export function RecentCandidatesTable() {
     }
 
     fetchCandidates()
-  }, [searchQuery])
+  }, [searchQuery,formUpdateSuccess])
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {

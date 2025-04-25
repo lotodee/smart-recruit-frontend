@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { NewCandidateForm } from "@/components/new-candidate-form"
 import { RecentCandidatesTable } from "@/components/recent-candidates-table"
-
+import { useRef } from "react";
+import Loader from "@/components/ui/loader"
 export default function DashboardPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
+  const [formUpdateSuccess, setFormUpdateSuccess] = useState(false);
+
 
   useEffect(() => {
     // Check if user is logged in
@@ -36,7 +39,7 @@ export default function DashboardPage() {
   }, [router])
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center">Loading...</div>
+    return <Loader/>
   }
 
   return (
@@ -44,19 +47,21 @@ export default function DashboardPage() {
       <DashboardHeader />
       <main className="flex-1 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-2">Welcome to SmartRecruit</h1>
-        <p className="text-gray-500 mb-8">Manage your interview candidates efficiently</p>
+        <p className="text-gray-500 mb-8">
+          Manage your interview candidates efficiently
+        </p>
 
         <div className="grid gap-8 md:grid-cols-2">
           <div>
             <h2 className="text-xl font-semibold mb-4">Add New Candidate</h2>
-            <NewCandidateForm />
+            <NewCandidateForm onSuccessChange={(val) => setFormUpdateSuccess(val)} />
           </div>
           <div>
             <h2 className="text-xl font-semibold mb-4">Recent Candidates</h2>
-            <RecentCandidatesTable />
+            <RecentCandidatesTable formUpdateSuccess = {formUpdateSuccess} />
           </div>
         </div>
       </main>
     </div>
-  )
+  );
 }
