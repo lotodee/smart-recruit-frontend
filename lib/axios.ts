@@ -1,7 +1,7 @@
 import axios from "axios"
 
 // Determine the base URL based on the environment
-const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"
 
 // Create a reusable axios instance with default config
 const api = axios.create({

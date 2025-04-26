@@ -59,6 +59,8 @@ export function CandidateDetails({ id }: { id: string }) {
     }
   }
 
+
+
   useEffect(() => {
     fetchCandidate()
   }, [id])
@@ -131,10 +133,10 @@ export function CandidateDetails({ id }: { id: string }) {
             Back to Candidates
           </Button>
         </Link>
-        {/* <Button variant="outline" className="gap-1" onClick={() => setStatusModalOpen(true)}>
+        <Button variant="outline" className="gap-1" onClick={() => setStatusModalOpen(true)}>
           <Mail className="h-4 w-4" />
-          Send Status Email
-        </Button> */}
+    Delete
+        </Button>
       </div>
 
       <Card className="mb-6">
@@ -240,6 +242,7 @@ export function CandidateDetails({ id }: { id: string }) {
       )}
 
       <StatusUpdateModal
+        action="delete"
         isOpen={statusModalOpen}
         onClose={() => setStatusModalOpen(false)}
         candidate={candidate}

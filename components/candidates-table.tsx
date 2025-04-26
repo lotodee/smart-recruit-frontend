@@ -274,7 +274,7 @@ export function CandidatesTable() {
             <PaginationItem>
               <PaginationPrevious
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
+                isActive={currentPage === 1}
               />
             </PaginationItem>
 
@@ -289,7 +289,7 @@ export function CandidatesTable() {
             <PaginationItem>
               <PaginationNext
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
+                isActive={currentPage === totalPages}
               />
             </PaginationItem>
           </PaginationContent>

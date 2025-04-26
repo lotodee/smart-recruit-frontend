@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -12,111 +12,163 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, CheckCircle2 } from "lucide-react"
-import api from "@/lib/axios"
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import api from "@/lib/axios";
+import { useRouter } from "next/navigation";
 
 interface StatusUpdateModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
   candidate: {
-    _id: string
-    name: string
-    email: string
-    status: string
-    stage: string
-  }
-  onSuccess: () => void
+    _id: string;
+    name: string;
+    email: string;
+    status: string;
+    stage: string;
+  };
+  onSuccess: () => void;
+  action?: string;
 }
 
-export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: StatusUpdateModalProps) {
-  const [step, setStep] = useState<"confirm" | "reason" | "recruiter">("confirm")
-  const [reason, setReason] = useState("")
-  const [recruiterName, setRecruiterName] = useState("")
-  const [recruiterEmail, setRecruiterEmail] =  useState("");
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-  const [emailPreviewUrl, setEmailPreviewUrl] = useState<string | null>(null)
-
+export function StatusUpdateModal({
+  isOpen,
+  onClose,
+  candidate,
+  onSuccess,
+  action,
+}: StatusUpdateModalProps) {
+  const [step, setStep] = useState<"confirm" | "reason" | "recruiter">(
+    "confirm"
+  );
+  const [reason, setReason] = useState("");
+  const [recruiterName, setRecruiterName] = useState("");
+  const [recruiterEmail, setRecruiterEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [emailPreviewUrl, setEmailPreviewUrl] = useState<string | null>(null);
+  const router = useRouter();
   const handleClose = () => {
     // Reset state
-    setStep("confirm")
-    setReason("")
-    setRecruiterName("")
-    setError(null)
-    setSuccess(false)
-    setEmailPreviewUrl(null)
-    onClose()
-  }
+    setStep("confirm");
+    setReason("");
+    setRecruiterName("");
+    setError(null);
+    setSuccess(false);
+    setEmailPreviewUrl(null);
+    onClose();
+  };
 
   const handleConfirm = () => {
     if (candidate.status === "Failed") {
-      setStep("reason")
+      setStep("reason");
     } else {
-      setStep("recruiter")
+      setStep("recruiter");
     }
-  }
+  };
 
   const handleDecline = () => {
-    handleClose()
-  }
+    handleClose();
+  };
+
+  const deleteCandidate = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.delete(`/candidates/${candidate._id}`);
+
+      if (response.data.success) {
+        setSuccess(true);
+
+        setTimeout(() => {
+          handleClose();
+          router.push("/candidates");
+          onSuccess();
+        }, 3000);
+      } else {
+        throw new Error(response.data.message || "Failed to send email");
+      }
+    } catch (err: any) {
+      setError("Failed to load candidate details");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleReasonSubmit = () => {
     if (!reason.trim() && candidate.status === "Failed") {
-      setError("Please provide a reason for the failure")
-      return
+      setError("Please provide a reason for the failure");
+      return;
     }
-    setStep("recruiter")
-  }
+    setStep("recruiter");
+  };
 
   const handleSendEmail = async () => {
     if (!recruiterName.trim()) {
-      setError("Please provide your name")
-      return
+      setError("Please provide your name");
+      return;
     }
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const response = await api.post(`/candidates/${candidate._id}/send-email`, {
-        recruiterName,
-        recruiterEmail,
-        reason: candidate.status === "Failed" ? reason : undefined,
-      })
+      const response = await api.post(
+        `/candidates/${candidate._id}/send-email`,
+        {
+          recruiterName,
+          recruiterEmail,
+          reason: candidate.status === "Failed" ? reason : undefined,
+        }
+      );
       console.log("the response of email", response);
       if (response.data.success) {
-        setSuccess(true)
-        setEmailPreviewUrl(response.data.emailPreview)
+        setSuccess(true);
+        setEmailPreviewUrl(response.data.emailPreview);
         setTimeout(() => {
-          handleClose()
-          onSuccess()
-        }, 3000)
+          handleClose();
+          onSuccess();
+        }, 3000);
       } else {
-        throw new Error(response.data.message || "Failed to send email")
+        throw new Error(response.data.message || "Failed to send email");
       }
     } catch (err: any) {
-      console.log(err)
-      setError(err.response?.data?.message || err.message || "Failed to send email")
+      console.log(err);
+      setError(
+        err.response?.data?.message || err.message || "Failed to send email"
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         {step === "confirm" && (
           <>
-            <DialogHeader>
-              <DialogTitle>Send Status Update Email</DialogTitle>
-              <DialogDescription>
-                Would you like to send an email notification to {candidate.name}{" "}
-                about their {candidate.status.toLowerCase()} status?
-              </DialogDescription>
-            </DialogHeader>
+            {success ? (
+              <Alert className="bg-green-50 text-green-800 border-green-200 mt-4">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertDescription>
+                  Successfully deleted Candidate!
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <DialogHeader>
+                <DialogTitle>Send Status Update Email</DialogTitle>
+                <DialogDescription>
+                  {action === "delete"
+                    ? `Are you sure you want to delete ${candidate.name}`
+                    : `Would you like to send an email notification to ${
+                        candidate.name
+                      }{" "}
+                about their ${candidate.status.toLowerCase()} status?`}
+                </DialogDescription>
+              </DialogHeader>
+            )}
             {error && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -127,7 +179,14 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
               <Button variant="outline" onClick={handleDecline}>
                 No, Don't Send
               </Button>
-              <Button onClick={handleConfirm}>Yes, Continue</Button>
+              <Button
+                variant={action === "delete" ? "destructive" : "default"}
+                onClick={action === "delete" ? deleteCandidate : handleConfirm}
+              >
+                {action === "delete" && isLoading
+                  ? "Deleting ..."
+                  : " Yes, Continue"}
+              </Button>
             </DialogFooter>
           </>
         )}
@@ -163,7 +222,12 @@ export function StatusUpdateModal({ isOpen, onClose, candidate, onSuccess }: Sta
               <Button variant="outline" onClick={handleDecline}>
                 Cancel
               </Button>
-              <Button onClick={handleReasonSubmit}>Continue</Button>
+              <Button
+                onClick={handleReasonSubmit}
+                disabled={isLoading || success}
+              >
+                Continue
+              </Button>
             </DialogFooter>
           </>
         )}
